@@ -1,0 +1,558 @@
+import mysql.connector
+con = mysql.connector.connect(
+host="localhost",
+user="root",
+passwd="",
+database="synexindustries"
+
+import getpass
+def GetAppUserDetails(Password):
+    global con
+    C = con.cursor()
+    query = "SELECT Password from AppUser where Password = %s " %Password
+    C.execute(query)
+    x = C.fetchall()
+    return x
+def AddNewAppUser(Name,CP,UT):
+    global con
+    c = con.cursor()
+    query = "Insert into AppUser(UserName,Password,UserType)values(%s,%s,%s)"
+    values = (Name,CP,UT)
+    c.execute(query,values)
+    con.commit()
+def RemoveAppUser(Name):
+    global con
+    C = con.cursor()
+    query = "delete from AppUser where UserName = '%s'" %Name
+    C.execute(query)
+    con.commit() 
+def AddNewProffession(PC,P,DR):
+    global con
+    c = con.cursor()
+    query = "Insert into Proffesion(ProfesionCode,ProffesionName,DailyRate)values(%s,%s,%s)"
+    values = (PC,P,DR)
+    c.execute(query,values)
+    con.commit()
+def GetProffessionData(B):
+    global con
+    C = con.cursor()
+    query = "SELECT * from Proffesion where ProfesionCode ='%s' " %B
+    C.execute(query)
+    x = C.fetchall()
+    return x
+def ChangeProfesionName(NPN,L):
+    global con
+    C = con.cursor()
+    query = "update Proffesion set ProffesionName = '%s' where ProfesionCode = %s" %(NPN,L)
+    C.execute(query)
+    con.commit()
+def ChangeDailyRate(NDR,L):
+    global con
+    C = con.cursor()
+    query = "update Proffesion set DailyRate = %s where ProfesionCode = %s" %(NDR,L)
+    C.execute(query)
+    con.commit()
+def DeleteProfesion(PD):
+    global con
+    C = con.cursor()
+    query = "delete from Proffesion where ProfesionCode = '%s'" %PD
+    C.execute(query)
+    con.commit()
+def LoadDataEmployee(p,q,r):
+    global con
+    c = con.cursor()
+    query = "Insert into Employee(Empcode,EmpName,FK_ProfesionCode)values(%s,%s,%s)"
+    values = (p,q,r)
+    c.execute(query,values)
+    con.commit()
+def LoadDataWorkedData(p,j,k):
+    global con
+    c = con.cursor()
+    query = "Insert into WorkedData(FK_Empcode,Month,Days)values(%s,%s,%s)"
+    values = (p,j,k)
+    c.execute(query,values)
+    con.commit()
+def DeleteEmployeeData():
+    global con
+    C = con.cursor()
+    query = "delete from Employee"
+    C.execute(query)
+    con.commit()
+def DeleteWorkedData():
+    global con
+    C = con.cursor()
+    query = "delete from WorkedData"
+    C.execute(query)
+    con.commit()
+def GetEmployeeode():
+    global con
+    C = con.cursor()
+    query = "SELECT Empcode from Employee "
+    C.execute(query)
+    x = C.fetchall()
+    return x
+def GetEmployeeName(B):
+    global con
+    C = con.cursor()
+    query = "SELECT EmpName from Employee where Empcode = '%s'"%B
+    C.execute(query)
+    x = C.fetchall()
+    return x
+def GetProffession(B):
+    global con
+    C = con.cursor()
+    query = "SELECT Proffesion.ProffesionName,Proffesion.DailyRate from Proffesion inner join Employee on Proffesion.ProfesionCode=Employee.FK_ProfesionCode where Employee.Empcode = '%s'"%B
+    C.execute(query)
+    x = C.fetchall()
+    return x
+def GetWorkData(B):
+    global con
+    C = con.cursor()
+    query = "SELECT WorkedData.Month,WorkedData.Days from WorkedData inner join Employee on WorkedData.FK_Empcode=Employee.Empcode where Employee.Empcode = '%s '"%B
+    C.execute(query)
+    x = C.fetchall()
+    return x
+def calsalary(T,Q,l,GrossSalary,totaldeductions,Netsalary):
+        GrossSalary = Q * T
+        EPF = GrossSalary *8/100
+        Tax = GrossSalary *10/100
+        sa = 500
+        totaldeductions = EPF + Tax + sa
+        Netsalary = GrossSalary - totaldeductions
+        if l == 1:
+            return Netsalary
+        if l == 2:
+            return Tax
+        if l == 3:
+            return Netsalary,totaldeductions,GrossSalary   
+def CalProfit(g):
+    a = 8000000 * 200
+    k = a - g
+    return k
+print("========== Synex Industry ==========")
+print("\nTo Exit : Enter '000' ")
+UserName = input("\nEnter User Name : ")
+Password = getpass.getpass("Enter Password : ")
+if (UserName == "owner") and (Password == "1234"):#GetAppUserDetails(Password)[0][0]
+    while(True):
+        print("\n** You are logged as owner **")
+        print("\nTo Exit : Enter '000' ")
+        print("\nPress 1 for App Manager")
+        print("Press 2 for Emp Manager")
+        C = int(input("Enter Your Choise : "))
+        if C == 1:
+            while(True):
+                print("\n----------- Super User -----------")
+                print("\nGo Back : Enter '000'")
+                print("\t\t_________ Owner Menu _________")
+                print("\t\tPress 1 for Add New App User")
+                print("\t\tPress 2 for Remove App User")
+                print("\t\tPress 3 for Add New Profession")
+                print("\t\tPress 4 for Change the Profession Details")
+                print("\t\tPress 5 for Delete Profession")
+                print("\t\tPress 6 for Load Data File")
+                print("\t\tPress 7 for Delete Employee Data")
+                choise = int(input("Enter Your Choise : "))
+                if choise == 1:
+                    print("________ Add New App User ________")
+                    print("\nGo Back : Enter '000'")
+                    Name = input("\nEnter User Name : ")
+                    PW = getpass.getpass('Enter Password use Olny 5 Digit:')
+                    CP = getpass.getpass("Confirm Password : ")
+                    UT = input("Enter User Type (owner/admin) : ")
+                    if PW != CP:
+                        print("Password notMatch!!! Try Again ")
+                    if PW == CP:
+                        AddNewAppUser(Name,CP,UT)
+                        print("Add New App User Sucssesfull!")
+                if choise == 2:
+                    print("________ Remove App User ________")
+                    print("\nGo Back : Enter '000'")
+                    Name = input("\nEnter User Name : ")
+                    remove = input("Are You Sure??, You Want to Remove %s (Y/N) : "%Name)
+                    if remove == 'Y':
+                        RemoveAppUser(Name)
+                        print("Remove App User Sucssesfull!")
+                if choise == 3:
+                    while(True):
+                        print("________ Add New Profession ________")
+                        print("\nGo Back : Enter '000'")
+                        PC = int(input("\nEnter Profession Code : "))
+                        if PC == 000:
+                            break;
+                        P = input("Enter Profession : ")
+                        DR = float(input("Enter Daliy Rate : "))
+                        AddNewProffession(PC,P,DR)
+                        print("Add New Profession Sucssesfull!")                       
+                if choise == 4:
+                    print("________ Change the Profession Details ________")
+                    print("\nGo Back : Enter '000'")
+                    B = int(input("Enter Profession Code : "))
+                    A = GetProffessionData(B)
+                    L = A[0][0]
+                    print("\n________________________")
+                    print("Proffesion Code : %d"%A[0][0])
+                    print("Profesion : %s"%A[0][1])
+                    print("Daliy Rate : %0.2f"%A[0][2])
+                    print("\n________________________")
+                    print("What do you want to Change?")
+                    print("\tProffesion Name for press(N)")
+                    print("\tDaliy Rate for press(R)")
+                    print("\tBoth for press(B)")
+                    K = input("Enter Choise : ")
+                    if K == 'N':
+                        NPN = input("Enter New Profesion Name : ")
+                        ChangeProfesionName(NPN,L)
+                        print("Changed Sucssesfull!")
+                    if K == 'R':
+                        NDR = float(input("Enter New Daily Rate : "))
+                        ChangeDailyRate(NDR,L)
+                        print("Changed Sucssesfull!")
+                    if K == 'B':
+                        NPN = input("Enter New Profesion Name : ")
+                        NDR = float(input("Enter New Daily Rate : "))
+                        ChangeProfesionName(NPN,L)
+                        ChangeDailyRate(NDR,L)
+                        print("Change Sucssesfull!")
+                if choise == 5:
+                    print("________ Delete Profession ________")
+                    print("\nGo Back : Enter '000'")
+                    PD = int(input("Enter Profession Code You Want to Delete : "))
+                    D = input("Are You Sure??, You Want to Remove %d (Y/N) : "%PD)
+                    if D == 'Y':
+                        DeleteProfesion(PD)
+                        print("Delete Sucssesfull!")
+                if choise == 6:
+                    print("________ Load Employee Data ________")
+                    FN = input("Enter Data File Name with Location : ")
+                    if FN == 'Employee.txt':
+                        a = open("Employee.txt", "r")
+                        l = a.readline()
+                        x = 0
+                        while x < 1027:
+                            f = l.split("	")
+                            p = f[0]
+                            q = f[1]
+                            r = f[2]
+                            LoadDataEmployee(p,q,r)
+                            l = a.readline()
+                            x += 1
+                        a = open("Employee.txt", "r")
+                        l = a.readline()
+                        month = ["January","February","March","April","May","June","July","August","September","Octomber","Novermber","December"]
+                        x = 0
+                        while x < 1027:
+                            t = l.split("	")
+                            p = t[0]
+                            u = 3
+                            o = 0
+                            while o < 12:
+                                j = month[o]
+                                k = t[u]
+                                LoadDataWorkedData(p,j,k)
+                                u += 1
+                                o += 1
+                            l = a.readline()
+                            x += 1
+                        print("Load Employee Data Sucssesfull!")
+                    if FN != "Employee.txt":
+                        print("Please Enter Corret File Name with Location!!!")
+                if choise == 7:
+                    print("________ Delete Employee Data ________")
+                    Password = getpass.getpass("Enter Password : ")
+                    D = input("Are You Sure??, You Want to Delete all Employee Data (Y/N) : ")
+                    if D == 'Y':
+                        DeleteEmployeeData()
+                        DeleteWorkedData()
+                        print("Delete All Data Sucssesfull!")
+                if choise == 000:
+                    break;
+        if C == 2:
+            while(True):
+                print("-------------- Synex Salary Management System --------------")
+                print("\nGo Back : Enter '000'")
+                print("\t\t_________ Admin Menu _________")
+                print("\t\tPress 1 for Creating Employee Salary Sheet for Company")
+                print("\t\tPress 2 for Calculating Total Taxes from all Employee in Each Month")
+                print("\t\tpress 3 for Calculating the Company Profit in Each Month")
+                print("\t\tPress 4 for Creating Year Salary Report for Employee")
+                print("\t\tPress 5 for Creating Salary Report of an Employee for Specific Month")
+                choise = int(input("Enter Your Choise : "))
+                GE = GetEmployeeode()
+                if choise == 1:
+                    b = 0
+                    totaldeductions = 0
+                    GrossSalary = 0
+                    Netsalary = 0
+                    v = open("SalarySheetForCompany.txt", "w")
+                    while b < 1027:
+                        B = GE[b][0]
+                        EN = GetEmployeeName(B)
+                        A = (EN[0][0])
+                        GP = GetProffession(B)
+                        T = GP[0][1]
+                        #print(A,GP)
+                        WD = GetWorkData(B)
+                        i = 0
+                        v.write("Employee Name : %s\t(Profesion: %s)"%(A,GP[0][0]))
+                        v.write('\t')
+                        while i < 12:                
+                            Q = (WD[i][1])
+                            v.write('\t')
+                            l = 1
+                            v.write('\n%s : '%WD[i][0]) 
+                            v.write('%0.2f\t'%calsalary(T,Q,l,GrossSalary,totaldeductions,Netsalary))
+                            i += 1
+                        v.write('\n\n')
+                        v.write('_______________________________________________________________________________\n\n')
+                        b += 1
+                    v.close()
+                if choise == 2:
+                    print("______Total Tax in Each Month from All Employee_______")
+                    totaldeductions = 0
+                    GrossSalary = 0
+                    Netsalary = 0
+                    i = 0
+                    while i < 12:
+                        g = 0
+                        v = 1
+                        while v < 1027:
+                            B = GE[v][0]
+                            WD = GetWorkData(B)
+                            GP = GetProffession(B)
+                            T = GP[0][1]
+                            Q = (WD[i][1])
+                            l = 2
+                            ans = calsalary(T,Q,l,GrossSalary,totaldeductions,Netsalary)
+                            g = g + ans
+                            v += 1
+                        print('%s : %0.2f'%(WD[i][0],g))
+                        i += 1
+                if choise == 3:
+                    totaldeductions = 0
+                    GrossSalary = 0
+                    Netsalary = 0
+                    i = 0
+                    while i < 12:
+                        g = 0
+                        l =1
+                        v = 0
+                        while v < 1027:
+                            B = GE[v][0]
+                            WD = GetWorkData(B)
+                            GP = GetProffession(B)
+                            T = GP[0][1]
+                            Q = (WD[i][1])
+                            ans = calsalary(T,Q,l,GrossSalary,totaldeductions,Netsalary)
+                            g = g + ans
+                            v += 1
+                        print('%s : %0.2f'%(WD[i][0],CalProfit(g)))
+                        i += 1
+                if choise == 4:
+                    totaldeductions = 0
+                    GrossSalary = 0
+                    Netsalary = 0
+                    i = 0
+                    q = input("Enter Employee Code :")
+                    while i < 1027:
+                        if q == GE[i][0]:
+                            EN = GetEmployeeName(q)
+                            A = (EN[0][0])
+                            b = 0
+                            v = open('%s.txt'%A, "w")
+                            v.write(" salary sheet of %s "%A)
+                            v.write("\n==================================================\n")
+                            v.write("\nMonth")
+                            v.write("\t\tGrosssalary")
+                            v.write("\t\tTotaldeduction")
+                            v.write("\t\tNetsalary\n")
+                            while b < 12:
+                                WD = GetWorkData(q)
+                                Q = (WD[b][1])
+                                GP = GetProffession(q)
+                                T = GP[0][1]
+                                l = 3
+                                v.write('\n%s    '%WD[b][0])
+                                v.write(' \t%0.2f \t\t%0.2f \t\t%0.2f'%calsalary(T,Q,l,GrossSalary,totaldeductions,Netsalary))
+                                b += 1
+                        i += 1
+                        v.close()
+                if choise == 5:
+                    totaldeductions = 0
+                    GrossSalary = 0
+                    Netsalary = 0
+                    i = 0
+                    q = input("Enter Employee Code :")
+                    o = input("Enter the Month You Want : ")
+                    while i < 1027:
+                        if q == GE[i][0]:
+                            b = 0
+                            while b < 12:
+                                if o == WD[b][0]:
+                                    EN = GetEmployeeName(q)
+                                    A = (EN[0][0])
+                                    v = open('%s.txt'%A, "w")
+                                    v.write(" salary sheet of %s "%A)
+                                    v.write("\n==================================================\n")
+                                    v.write("\nMonth")
+                                    v.write("\t\tGrosssalary")
+                                    v.write("\t\tTotaldeduction")
+                                    v.write("\t\tNetsalary\n")
+                                    WD = GetWorkData(q)
+                                    Q = (WD[b][1])
+                                    GP = GetProffession(q)
+                                    T = GP[0][1]
+                                    l = 3
+                                    v.write('\n%s    '%o)
+                                    v.write(' \t%0.2f \t\t%0.2f \t\t%0.2f'%calsalary(T,Q,l,GrossSalary,totaldeductions,Netsalary))
+                                b += 1
+                        i += 1
+                        v.close()
+                if choise == 000:
+                    break;
+        if C == 000:
+            exit()
+if ((UserName == "admin") and (Password == GetAppUserDetails(Password)[0][0])) :
+    while(True):
+        print("-------------- Synex Salary Management System --------------")
+        print("\nGo Back : Enter '000'")
+        print("\t\t_________ Admin Menu _________")
+        print("\t\tPress 1 for Creating Employee Salary Sheet for Company")
+        print("\t\tPress 2 for Calculating Total Taxes from all Employee in Each Month")
+        print("\t\tpress 3 for Calculating the Company Profit in Each Month")
+        print("\t\tPress 4 for Creating Year Salary Report for Employee")
+        print("\t\tPress 5 for Creating Salary Report of an Employee for Specific Month")
+        choise = int(input("Enter Your Choise : "))
+        GE = GetEmployeeode()
+        if choise == 1:
+            b = 0
+            totaldeductions = 0
+            GrossSalary = 0
+            Netsalary = 0
+            v = open("SalarySheetForCompany.txt", "w")
+            while b < 1027:
+                B = GE[b][0]
+                EN = GetEmployeeName(B)
+                A = (EN[0][0])
+                GP = GetProffession(B)
+                T = GP[0][1]
+                WD = GetWorkData(B)
+                i = 0
+                v.write("Employee Name : %s\t(Profesion: %s)"%(A,GP[0][0]))
+                v.write('\t')
+                while i < 12:                
+                    Q = (WD[i][1])
+                    #print(Q)
+                    v.write('\t')
+                    l = 1
+                    v.write('\n%s : '%WD[i][0]) 
+                    v.write('%0.2f\t'%calsalary(T,Q,l,GrossSalary,totaldeductions,Netsalary))
+                    i += 1
+                v.write('\n\n')
+                v.write('_______________________________________________________________________________\n\n')
+                b += 1
+            v.close()
+        if choise == 2:
+            print("______Total Tax in Each Month from All Employee_______")
+            totaldeductions = 0
+            GrossSalary = 0
+            Netsalary = 0
+            i = 0
+            while i < 12:
+                g = 0
+                v = 1
+                while v < 1027:
+                    B = GE[v][0]
+                    WD = GetWorkData(B)
+                    GP = GetProffession(B)
+                    T = GP[0][1]
+                    Q = (WD[i][1])
+                    l = 2
+                    ans = calsalary(T,Q,l,GrossSalary,totaldeductions,Netsalary)
+                    g = g + ans
+                    v += 1
+                print('%s : %0.2f'%(WD[i][0],g))
+                i += 1
+        if choise == 3:
+            totaldeductions = 0
+            GrossSalary = 0
+            Netsalary = 0
+            i = 0
+            while i < 12:
+                g = 0
+                l =1
+                v = 0
+                while v < 1027:
+                    B = GE[v][0]
+                    WD = GetWorkData(B)
+                    GP = GetProffession(B)
+                    T = GP[0][1]
+                    Q = (WD[i][1])
+                    ans = calsalary(T,Q,l,GrossSalary,totaldeductions,Netsalary)
+                    g = g + ans
+                    v += 1
+                print('%s : %0.2f'%(WD[i][0],CalProfit(g)))
+                i += 1
+        if choise == 4:
+            totaldeductions = 0
+            GrossSalary = 0
+            Netsalary = 0
+            i = 0
+            q = input("Enter Employee Code :")
+            while i < 1027:
+                if q == GE[i][0]:
+                    EN = GetEmployeeName(q)
+                    A = (EN[0][0])
+                    b = 0
+                    v = open('%s.txt'%A, "w")
+                    v.write(" salary sheet of %s "%A)
+                    v.write("\n==================================================\n")
+                    v.write("\nMonth")
+                    v.write("\t\tGrosssalary")
+                    v.write("\t\tTotaldeduction")
+                    v.write("\t\tNetsalary\n")
+                    while b < 12:
+                        WD = GetWorkData(q)
+                        Q = (WD[b][1])
+                        GP = GetProffession(q)
+                        T = GP[0][1]
+                        l = 3
+                        v.write('\n%s    '%WD[b][0])
+                        v.write(' \t%0.2f \t\t%0.2f \t\t%0.2f'%calsalary(T,Q,l,GrossSalary,totaldeductions,Netsalary))
+                        b += 1
+                i += 1
+                v.close()
+        if choise == 5:
+            totaldeductions = 0
+            GrossSalary = 0
+            Netsalary = 0
+            i = 0
+            q = input("Enter Employee Code :")
+            o = input("Enter the Month You Want : ")
+            while i < 1027:
+                if q == GE[i][0]:
+                    WD = GetWorkData(q)
+                    b = 0
+                    while b < 12:
+                        if o == WD[b][0]:
+                            EN = GetEmployeeName(q)
+                            A = (EN[0][0])
+                            v = open('%s.txt'%A, "w")
+                            v.write(" salary sheet of %s "%A)
+                            v.write("\n==================================================\n")
+                            v.write("\nMonth")
+                            v.write("\t\tGrosssalary")
+                            v.write("\t\tTotaldeduction")
+                            v.write("\t\tNetsalary\n")
+                            WD = GetWorkData(q)
+                            Q = (WD[b][1])
+                            GP = GetProffession(q)
+                            T = GP[0][1]
+                            l = 3
+                            v.write('\n%s    '%o)
+                            v.write(' \t%0.2f \t\t%0.2f \t\t%0.2f'%calsalary(T,Q,l,GrossSalary,totaldeductions,Netsalary))
+                        b += 1
+                v.close()
+                i += 1
+        if choise == 000:
+            break;
